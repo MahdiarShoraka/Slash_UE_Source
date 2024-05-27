@@ -4,6 +4,8 @@
 #include "GameFramework/Actor.h"
 #include "Item.generated.h"
 
+class USphereComponent;
+
 UCLASS()
 class SLASH_API AItem : public AActor
 {
@@ -21,15 +23,27 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Sine Parameters")
 	float TimeConst = 2.5f;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite) 
+	UStaticMeshComponent* ItemMesh;
+
 	UFUNCTION(BlueprintPure)
 	float TransformSin() const;
 	UFUNCTION(BlueprintPure)
 	float TransformCos() const;
+
+	UFUNCTION()
+	virtual void OnSphereOverlap(UPrimitiveComponent* OverlappedComponent,
+		 AActor* OtherActor,UPrimitiveComponent* OtherComponent ,int32 OtherBodyIndex,
+		bool bFromSweep, const FHitResult& SweepResult);
+
+	UFUNCTION()
+	virtual void OnSpherEndOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
+		UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
 
 private:
 	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, meta=(AllowPrivateAccess = "true"))
 	float RunningTime = 0.f;
 
 	UPROPERTY(VisibleAnywhere) 
-	UStaticMeshComponent* ItemMesh;
+	USphereComponent* Sphere;
 };
