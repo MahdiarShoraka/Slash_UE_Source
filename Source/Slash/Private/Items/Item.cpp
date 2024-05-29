@@ -1,5 +1,9 @@
+// Fill out your copyright notice in the Description page of Project Settings.
+
+
 #include "Items/Item.h"
 #include "Components/SphereComponent.h"
+#include "Characters/SlashCharacter.h"
 
 AItem::AItem()
 {
@@ -9,52 +13,48 @@ AItem::AItem()
 	RootComponent = ItemMesh;
 
 	Sphere = CreateDefaultSubobject<USphereComponent>(TEXT("Sphere"));
-	Sphere->SetupAttachment(RootComponent);
+	Sphere->SetupAttachment(GetRootComponent());
 }
 
 void AItem::BeginPlay()
 {
 	Super::BeginPlay();
 
-	// Bind the callback function to the delegate
 	Sphere->OnComponentBeginOverlap.AddDynamic(this, &AItem::OnSphereOverlap);
-	Sphere->OnComponentEndOverlap.AddDynamic(this, &AItem::OnSpherEndOverlap);
+	Sphere->OnComponentEndOverlap.AddDynamic(this, &AItem::OnSphereEndOverlap);
+}
+
+float AItem::TransformedSin()
+{
+	return Amplitude * FMath::Sin(RunningTime * TimeConstant);
+}
+
+float AItem::TransformedCos()
+{
+	return Amplitude * FMath::Cos(RunningTime * TimeConstant);
+}
+
+void AItem::OnSphereOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+	ASlashCharacter* SlashCharacter = Cast<ASlashCharacter>(OtherActor);
+	if (SlashCharacter)
+	{
+		SlashCharacter->SetOverlappingItem(this);
+	}
+}
+
+void AItem::OnSphereEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
+{
+	ASlashCharacter* SlashCharacter = Cast<ASlashCharacter>(OtherActor);
+	if (SlashCharacter)
+	{
+		SlashCharacter->SetOverlappingItem(nullptr);
+	}
 }
 
 void AItem::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-	//RunningTime += DeltaTime;
+	RunningTime += DeltaTime;
 }
-
-float AItem::TransformSin() const
-{
-	return Amplitude * FMath::Sin(TimeConst * RunningTime); 
-}
-
-float AItem::TransformCos() const
-{
-	return Amplitude * FMath::Cos(TimeConst * RunningTime); 
-}
-
-// callback function definition
-void AItem::OnSphereOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,UPrimitiveComponent* OtherComponent ,int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
-{
-	FString OtherActorName = OtherActor->GetName();
-	if(GEngine)
-	{
-		GEngine->AddOnScreenDebugMessage(1, 30.f, FColor::Blue, FString("Overlapped with: ") + OtherActorName);
-	}
-}
-
-void AItem::OnSpherEndOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
-{
-	FString OtherActorName = OtherActor->GetName();
-	if(GEngine)
-	{
-		GEngine->AddOnScreenDebugMessage(1, 30.f, FColor::Red, FString("Ending Overlap with: ") + OtherActorName);
-	}
-}
-
-
 

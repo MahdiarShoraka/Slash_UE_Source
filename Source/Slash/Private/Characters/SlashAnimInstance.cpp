@@ -1,3 +1,6 @@
+// Fill out your copyright notice in the Description page of Project Settings.
+
+
 #include "Characters/SlashAnimInstance.h"
 #include "Characters/SlashCharacter.h"
 #include "GameFramework/CharacterMovementComponent.h"
@@ -6,22 +9,22 @@
 void USlashAnimInstance::NativeInitializeAnimation()
 {
 	Super::NativeInitializeAnimation();
-	
-	APawn* PawnOwner = TryGetPawnOwner();
-	SlashCharacter = Cast<ASlashCharacter>(PawnOwner);
-	if(SlashCharacter)
+
+	SlashCharacter = Cast<ASlashCharacter>(TryGetPawnOwner());
+	if (SlashCharacter)
 	{
-		SlashCharacterMovementComponent = SlashCharacter->GetCharacterMovement();
+		SlashCharacterMovement = SlashCharacter->GetCharacterMovement();
 	}
 }
 
-void USlashAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
+void USlashAnimInstance::NativeUpdateAnimation(float DeltaTime)
 {
-	Super::NativeUpdateAnimation(DeltaSeconds);
+	Super::NativeUpdateAnimation(DeltaTime);
 
-	if(SlashCharacterMovementComponent)
+	if (SlashCharacterMovement)
 	{
-		GroundSpeed = UKismetMathLibrary::VSizeXY(SlashCharacterMovementComponent->Velocity);
-		IsFalling = SlashCharacterMovementComponent->IsFalling();
+		GroundSpeed = UKismetMathLibrary::VSizeXY(SlashCharacterMovement->Velocity);
+		IsFalling = SlashCharacterMovement->IsFalling();
+		CharacterState = SlashCharacter->GetCharacterState();
 	}
 }
