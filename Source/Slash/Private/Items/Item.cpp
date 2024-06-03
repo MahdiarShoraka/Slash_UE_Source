@@ -56,5 +56,11 @@ void AItem::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 	RunningTime += DeltaTime;
+
+	if (ItemState == EItemState::EIS_Hovering)
+	{
+		float ZOffset = TransformedSin();
+		AddActorWorldOffset(FVector(0.f, 0.f, ZOffset));
+	}
 }
 

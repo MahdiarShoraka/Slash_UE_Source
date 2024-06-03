@@ -8,6 +8,7 @@
 #include "GroomComponent.h"
 #include "Items/Item.h"
 #include "Items/Weapon.h"
+#include "Animation/AnimMontage.h"
 
 ASlashCharacter::ASlashCharacter()
 {
@@ -60,10 +61,12 @@ void ASlashCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComp
 
 	PlayerInputComponent->BindAction(FName("Jump"), IE_Pressed, this, &ACharacter::Jump);
 	PlayerInputComponent->BindAction(FName("Equip"), IE_Pressed, this, &ASlashCharacter::EKeyPressed);
+	PlayerInputComponent->BindAction(FName("Attack"), IE_Pressed, this, &ASlashCharacter::Attack);
 }
 
 void ASlashCharacter::MoveForward(float Value)
 {
+	if (ActionState == EActionState::EAS_Attacking) return;
 	if (Controller && (Value != 0.f))
 	{
 		// find out which way is forward
@@ -77,6 +80,7 @@ void ASlashCharacter::MoveForward(float Value)
 
 void ASlashCharacter::MoveRight(float Value)
 {
+	if (ActionState == EActionState::EAS_Attacking) return;
 	if (Controller && (Value != 0.f))
 	{
 		// find out which way is right
@@ -105,6 +109,87 @@ void ASlashCharacter::EKeyPressed()
 	{
 		OverlappingWeapon->Equip(GetMesh(), FName("Right Hand Socket"));
 		CharacterState = ECharacterState::ECS_EquippedOneHandedWeapon;
+		EquippedWeapon = OverlappingWeapon;
+		OverlappingItem = nullptr;
 	}
+	else if (CanDisarm())
+	{
+		PlayEquipMontage("Unequip");
+		CharacterState = ECharacterState::ECS_Unequipped;
+	}
+	else if (CanArm())
+	{
+		PlayEquipMontage("Equip");
+		CharacterState = ECharacterState::ECS_EquippedOneHandedWeapon;
+	}
+}
+
+void ASlashCharacter::Attack()
+{
+	if (CanAttack())
+	{
+		ActionState = EActionState::EAS_Attacking;
+		PlayAttackMontage();
+	}
+}
+
+void ASlashCharacter::PlayAttackMontage()
+{
+	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
+	if (AnimInstance && AttackMontage)
+	{
+		AnimInstance->Montage_Play(AttackMontage);
+		const int32 Selection = FMath::RandRange(0, 1);
+		FName SectionName;
+		switch (Selection)
+		{
+		case 0:
+			SectionName = FName("Attack1");
+			break;
+
+		case 1:
+			SectionName = FName("Attack2");
+			break;
+
+		default:
+			break;
+		}
+		AnimInstance->Montage_JumpToSection(SectionName, AttackMontage);
+	}
+}
+
+void ASlashCharacter::PlayEquipMontage(FName SectionName)
+{
+	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
+	if (AnimInstance && EquipMontage)
+	{
+		AnimInstance->Montage_Play(EquipMontage);
+		AnimInstance->Montage_JumpToSection(SectionName, EquipMontage);
+	}
+}
+
+void ASlashCharacter::AttackEnd()
+{
+	ActionState = EActionState::EAS_Unoccupied;
+}
+
+bool ASlashCharacter::CanAttack() const
+{
+	return ActionState == EActionState::EAS_Unoccupied && CharacterState != ECharacterState::ECS_Unequipped;
+}
+
+
+bool ASlashCharacter::CanArm() const
+{
+	return ActionState == EActionState::EAS_Unoccupied
+		&& CharacterState == ECharacterState::ECS_Unequipped
+		&& EquippedWeapon;
+}
+
+bool ASlashCharacter::CanDisarm() const
+{
+	return ActionState == EActionState::EAS_Unoccupied
+		&& CharacterState != ECharacterState::ECS_Unequipped
+		&& EquippedWeapon;
 }
 
