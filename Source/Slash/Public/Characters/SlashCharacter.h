@@ -42,19 +42,26 @@ protected:
 	/**
 	*	Montage functions
 	*/
+
 	void PlayAttackMontage();
-	void PlayEquipMontage(FName SectionName);
 
 	UFUNCTION(BlueprintCallable)
 	void AttackEnd();
 
 	UFUNCTION(BlueprintCallable)
+	void FinishEquipping();
+
 	bool CanAttack() const;
 
+	void PlayEquipMontage(FName SectionName);
 	bool CanArm() const;
+	bool CanDisarm() const;
 
 	UFUNCTION(BlueprintCallable)
-	bool CanDisarm() const;
+	void Arm();
+
+	UFUNCTION(BlueprintCallable)
+	void Disarm();
 
 private:
 
