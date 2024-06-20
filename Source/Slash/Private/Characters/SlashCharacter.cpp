@@ -70,6 +70,8 @@ void ASlashCharacter::SetWeaponCollisionEnabled(ECollisionEnabled::Type Collisio
 	if (EquippedWeapon && EquippedWeapon->GetWeaponBox())
 	{
 		EquippedWeapon->GetWeaponBox()->SetCollisionEnabled(CollisionEnabled);
+		// Empty the Ignored Actors so SlashCharacter can hit them again in a seperate attack
+		EquippedWeapon->IgnoreActors.Empty();
 	}
 }
 
@@ -150,7 +152,7 @@ void ASlashCharacter::PlayAttackMontage()
 	if (AnimInstance && AttackMontage)
 	{
 		AnimInstance->Montage_Play(AttackMontage);
-		const int32 Selection = FMath::RandRange(0, 2);
+		const int32 Selection = FMath::RandRange(0, 1);
 		FName SectionName;
 		switch (Selection)
 		{
@@ -161,9 +163,6 @@ void ASlashCharacter::PlayAttackMontage()
 		case 1:
 			SectionName = FName("Attack2");
 			break;
-		case 2:
-			SectionName = FName("Attack3");
-			break;
 
 		default:
 			break;
@@ -172,12 +171,12 @@ void ASlashCharacter::PlayAttackMontage()
 	}
 }
 
-void ASlashCharacter::PlayEquipMontage(FName SectionName)
+void ASlashCharacter::PlayEquipMontage(const FName& SectionName)
 {
 	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
 	if (AnimInstance && EquipMontage)
 	{
-		// Arm() , Disarm() called in BP upon reaching the Notifies
+		// Arm() , Disarm() called in BP upon reaching their respective Notifies
 		AnimInstance->Montage_Play(EquipMontage);
 		AnimInstance->Montage_JumpToSection(SectionName, EquipMontage);
 	}
