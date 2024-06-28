@@ -29,7 +29,6 @@ ABird::ABird()
 void ABird::BeginPlay()
 {
 	Super::BeginPlay();
-
 }
 
 // callback functions passed in BindAxis (every frame)
@@ -52,7 +51,6 @@ void ABird::LookUp(float Value)
 void ABird::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
 }
 
 void ABird::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -62,4 +60,3 @@ void ABird::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 	PlayerInputComponent->BindAxis(FName("Turn"), this, &ABird::Turn);
 	PlayerInputComponent->BindAxis(FName("LookUp"), this, &ABird::LookUp);
 }
-

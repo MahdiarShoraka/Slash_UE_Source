@@ -36,19 +36,16 @@ ASlashCharacter::ASlashCharacter()
 	Eyebrows = CreateDefaultSubobject<UGroomComponent>(TEXT("Eyebrows"));
 	Eyebrows->SetupAttachment(GetMesh());
 	Eyebrows->AttachmentName = FString("head");
-
 }
 
 void ASlashCharacter::BeginPlay()
 {
 	Super::BeginPlay();
-
 }
 
 void ASlashCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
 }
 
 void ASlashCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -157,7 +154,7 @@ void ASlashCharacter::PlayAttackMontage()
 		switch (Selection)
 		{
 		case 0:
-			SectionName = FName("Attack1");
+			SectionName = FName("Attack2");
 			break;
 
 		case 1:
@@ -228,4 +225,3 @@ bool ASlashCharacter::CanDisarm() const
 		&& CharacterState != ECharacterState::ECS_Unequipped
 		&& EquippedWeapon;
 }
-
