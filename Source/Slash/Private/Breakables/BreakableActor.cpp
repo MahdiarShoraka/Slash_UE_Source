@@ -35,6 +35,10 @@ void ABreakableActor::Tick(float DeltaTime)
 
 void ABreakableActor::GetHit_Implementation(const FVector& ImpactPoint)
 {
+	// Execute GetHit noly once
+	if (bBroken) return;
+	bBroken = true;
+
 	UWorld* World = GetWorld();
 	if (World && TreasureClasses.Num() > 0)
 	{
