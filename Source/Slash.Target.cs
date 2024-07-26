@@ -10,6 +10,6 @@ public class SlashTarget : TargetRules
 		Type = TargetType.Game;
 		DefaultBuildSettings = BuildSettingsVersion.V5;
 
-		ExtraModuleNames.AddRange( new string[] { "Slash" } );
+		ExtraModuleNames.AddRange(new string[] { "Slash" });
 	}
 }

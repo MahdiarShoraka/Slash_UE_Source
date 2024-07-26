@@ -10,6 +10,6 @@ public class SlashEditorTarget : TargetRules
 		Type = TargetType.Editor;
 		DefaultBuildSettings = BuildSettingsVersion.V5;
 
-		ExtraModuleNames.AddRange( new string[] { "Slash" } );
+		ExtraModuleNames.AddRange(new string[] { "Slash" });
 	}
 }

@@ -19,44 +19,40 @@ class SLASH_API ASlashCharacter : public ABaseCharacter
 	GENERATED_BODY()
 
 public:
-
 	ASlashCharacter();
-	virtual void Tick(float DeltaTime) override;
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+	virtual void GetHit_Implementation(const FVector& ImpactPoint) override;
 
 protected:
-
 	virtual void BeginPlay() override;
 
-	/**
-	*	Callback functions for Input
-	*/
+	/** Callback functions for Input **/
 	void MoveForward(float Value);
 	void MoveRight(float Value);
 	void Turn(float Value);
 	void LookUp(float Value);
 	void EKeyPressed();
 
+	void EquipWeapon(AWeapon* Weapon);
 	virtual void Attack() override;
 	virtual void AttackEnd() override;
+	virtual bool CanAttack() override;
+	void PlayEquipMontage(const FName& SectionName);
+	bool CanArm() const;
+	bool CanDisarm() const;
+	void Disarm();
+	void Arm();
 
 	UFUNCTION(BlueprintCallable)
 	void FinishEquipping();
 
-	virtual bool CanAttack() override;
-
-	void PlayEquipMontage(const FName& SectionName);
-	bool CanArm() const;
-	bool CanDisarm() const;
+	UFUNCTION(BlueprintCallable)
+	void AttachWeaponToHand();
 
 	UFUNCTION(BlueprintCallable)
-	void Arm();
-
-	UFUNCTION(BlueprintCallable)
-	void Disarm();
+	void AttachWeaponToBack();
 
 private:
-
 	UPROPERTY(BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
 	ECharacterState CharacterState = ECharacterState::ECS_Unequipped;
 
@@ -82,7 +78,6 @@ private:
 	UAnimMontage* EquipMontage;
 
 public:
-
 	FORCEINLINE void SetOverlappingItem(AItem* Item) { OverlappingItem = Item; }
 	FORCEINLINE ECharacterState GetCharacterState() const { return CharacterState; }
 };

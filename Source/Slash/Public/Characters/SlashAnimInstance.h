@@ -14,6 +14,7 @@ UCLASS()
 class SLASH_API USlashAnimInstance : public UAnimInstance
 {
 	GENERATED_BODY()
+
 public:
 	virtual void NativeInitializeAnimation() override;
 	virtual void NativeUpdateAnimation(float DeltaTime) override;
