@@ -53,7 +53,14 @@ float AEnemy::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AC
 {
 	HandleDamage(DamageAmount);
 	CombatTarget = EventInstigator->GetPawn();
-	ChaseTarget();
+	if (IsInsideAttackRadius())
+	{
+		EnemyState = EEnemyState::EES_Attacking;
+	}
+	else if (IsOutsideAttackRadius())
+	{
+		ChaseTarget();
+	}
 	return DamageAmount;
 }
 
@@ -65,19 +72,14 @@ void AEnemy::Destroyed()
 	}
 }
 
-void AEnemy::GetHit_Implementation(const FVector& ImpactPoint)
+void AEnemy::GetHit_Implementation(const FVector& ImpactPoint, AActor* Hitter)
 {
-	ShowHealthBar();
-	if (IsAlive())
-	{
-		DirectionalHitReact(ImpactPoint);
-	}
-	else
-	{
-		Die();
-	}
-	PlayHitSound(ImpactPoint);
-	SpawnHitParticles(ImpactPoint);
+	Super::GetHit_Implementation(ImpactPoint, Hitter);
+	if (EnemyState != EEnemyState::EES_Dead) ShowHealthBar();
+	SetWeaponCollisionEnabled(ECollisionEnabled::NoCollision);
+	ClearPatrolTimer();
+	ClearAttackTimer();
+	StopAttackMontage();
 }
 
 void AEnemy::BeginPlay()
@@ -98,6 +100,7 @@ void AEnemy::Die()
 	ClearAttackTimer();
 	DisableCapsule();
 	HideHealthBar();
+	SetWeaponCollisionEnabled(ECollisionEnabled::NoCollision);
 	GetCharacterMovement()->bOrientRotationToMovement = false;
 	SetLifeSpan(DeathLifeSpan);
 }

@@ -20,12 +20,14 @@ public:
 
 protected:
 	virtual void BeginPlay() override;
+	virtual void GetHit_Implementation(const FVector& ImpactPoint, AActor* Hitter) override;
 	virtual void Attack();
 	virtual bool CanAttack();
 	virtual void Die();
 	virtual void HandleDamage(float DamageAmount);
 	virtual int32 PlayAttackMontage();
 	virtual int32 PlayDeathMontage();
+	void StopAttackMontage();
 	void DisableCapsule();
 	bool IsAlive();
 	void PlayHitReactMontage(const FName& SectionName);

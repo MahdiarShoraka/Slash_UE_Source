@@ -7,7 +7,7 @@
 
 ABaseCharacter::ABaseCharacter()
 {
- 	PrimaryActorTick.bCanEverTick = true;
+	PrimaryActorTick.bCanEverTick = true;
 
 	Attributes = CreateDefaultSubobject<UAttributeComponent>(TEXT("Attributes"));
 }
@@ -15,7 +15,21 @@ ABaseCharacter::ABaseCharacter()
 void ABaseCharacter::BeginPlay()
 {
 	Super::BeginPlay();
-	
+
+}
+
+void ABaseCharacter::GetHit_Implementation(const FVector& ImpactPoint, AActor* Hitter)
+{
+	if (IsAlive() && Hitter)
+	{
+		DirectionalHitReact(Hitter->GetActorLocation());
+	}
+	else
+	{
+		Die();
+	}
+	PlayHitSound(ImpactPoint);
+	SpawnHitParticles(ImpactPoint);
 }
 
 void ABaseCharacter::Tick(float DeltaTime)
@@ -78,7 +92,7 @@ void ABaseCharacter::PlayHitSound(const FVector& ImpactPoint)
 
 void ABaseCharacter::SpawnHitParticles(const FVector& ImpactPoint)
 {
-	if(HitParticles)
+	if (HitParticles)
 	{
 		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), HitParticles, ImpactPoint);
 	}
@@ -95,7 +109,7 @@ void ABaseCharacter::HandleDamage(float DamageAmount)
 void ABaseCharacter::PlayMontageSection(UAnimMontage* AnimMontage, const FName& SectionName)
 {
 	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
-	if(AnimInstance && AnimMontage)
+	if (AnimInstance && AnimMontage)
 	{
 		AnimInstance->Montage_Play(AnimMontage);
 		AnimInstance->Montage_JumpToSection(SectionName, AnimMontage);
@@ -104,7 +118,7 @@ void ABaseCharacter::PlayMontageSection(UAnimMontage* AnimMontage, const FName& 
 
 int32 ABaseCharacter::PlayRandomMontageSection(UAnimMontage* AnimMontage, const TArray<FName>& SectionNames)
 {
-	if(SectionNames.Num() <= 0) return -1;
+	if (SectionNames.Num() <= 0) return -1;
 	const int32 MaxSectionIndex = SectionNames.Num() - 1;
 	const int32 Selection = FMath::RandRange(0, MaxSectionIndex);
 	PlayMontageSection(AnimMontage, SectionNames[Selection]);
@@ -119,6 +133,15 @@ int32 ABaseCharacter::PlayAttackMontage()
 int32 ABaseCharacter::PlayDeathMontage()
 {
 	return PlayRandomMontageSection(DeathMontage, DeathMontageSections);
+}
+
+void ABaseCharacter::StopAttackMontage()
+{
+	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
+	if (AnimInstance)
+	{
+		AnimInstance->Montage_Stop(0.25f, AttackMontage);
+	}
 }
 
 void ABaseCharacter::DisableCapsule()
