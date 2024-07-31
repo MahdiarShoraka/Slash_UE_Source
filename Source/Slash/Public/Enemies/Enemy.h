@@ -36,9 +36,6 @@ protected:
 	UPROPERTY(BlueprintReadOnly)
 	EEnemyState EnemyState = EEnemyState::EES_Patrolling;
 
-	UPROPERTY(BlueprintReadOnly, Category = "Combat")
-	AActor* CombatTarget;
-
 private:
 	// AI Behavior
 	void CheckPatrolTarget();

@@ -98,6 +98,22 @@ void ABaseCharacter::SpawnHitParticles(const FVector& ImpactPoint)
 	}
 }
 
+FVector ABaseCharacter::GetTranslationWarpTarget()
+{
+	if (CombatTarget == nullptr) return FVector();
+	const FVector Location = GetActorLocation();
+	const FVector CombatTargetLocation = CombatTarget->GetActorLocation();
+	FVector TargetToMe = (Location - CombatTargetLocation).GetSafeNormal();
+	TargetToMe *= WarpTargetDistance;
+	return CombatTargetLocation + TargetToMe;
+}
+
+FVector ABaseCharacter::GetRotationWarpTarget()
+{
+	if (CombatTarget == nullptr) return FVector();
+	return CombatTarget->GetActorLocation();
+}
+
 void ABaseCharacter::HandleDamage(float DamageAmount)
 {
 	if (Attributes)
