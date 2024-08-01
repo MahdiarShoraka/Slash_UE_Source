@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "BaseCharacter.h"
 #include "CharacterTypes.h"
+#include "InputActionValue.h"
 #include "SlashCharacter.generated.h"
 
 class USpringArmComponent;
@@ -12,6 +13,8 @@ class UCameraComponent;
 class UGroomComponent;
 class AItem;
 class UAnimMontage;
+class UInputMappingContext;
+class UInputAction;
 
 UCLASS()
 class SLASH_API ASlashCharacter : public ABaseCharacter
@@ -27,9 +30,28 @@ public:
 protected:
 	virtual void BeginPlay() override;
 
-	/** Callback functions for Input **/
-	void MoveForward(float Value);
-	void MoveRight(float Value);
+	UPROPERTY(EditAnywhere, Category = Input)
+	UInputMappingContext* SlashContext;
+
+	UPROPERTY(EditAnywhere, Category = Input)
+	UInputAction* MovementAction;
+
+	UPROPERTY(EditAnywhere, Category = Input)
+	UInputAction* LookAction;
+
+	UPROPERTY(EditAnywhere, Category = Input)
+	UInputAction* JumpAction;
+
+	UPROPERTY(EditAnywhere, Category = Input)
+	UInputAction* EKeyAction;
+
+	UPROPERTY(EditAnywhere, Category = Input)
+	UInputAction* AttackAction;
+
+	void Move(const FInputActionValue& Value);
+	void Look(const FInputActionValue& Value);
+
+
 	void Turn(float Value);
 	void LookUp(float Value);
 	void EKeyPressed();
