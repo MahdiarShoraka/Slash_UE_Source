@@ -8,7 +8,7 @@
 #include "SlashAnimInstance.generated.h"
 
 /**
- * 
+ *
  */
 UCLASS()
 class SLASH_API USlashAnimInstance : public UAnimInstance
@@ -31,6 +31,12 @@ public:
 	UPROPERTY(BlueprintReadOnly, Category = Movement)
 	bool IsFalling;
 
-	UPROPERTY(BlueprintReadOnly, Category = "Movement | Character State")
+	UPROPERTY(BlueprintReadOnly, Category = "States and Poses")
 	ECharacterState CharacterState;
+
+	UPROPERTY(BlueprintReadOnly, Category = "States and Poses")
+	EActionState ActionState;
+
+	UPROPERTY(BlueprintReadOnly, Category = "States and Poses")
+	TEnumAsByte<EDeathPose> DeathPose;
 };

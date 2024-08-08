@@ -3,6 +3,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "Interfaces/HitInterface.h"
+#include "CharacterTypes.h"
 #include "BaseCharacter.generated.h"
 
 class AWeapon;
@@ -57,7 +58,10 @@ protected:
 	AActor* CombatTarget;
 
 	UPROPERTY(EditAnywhere, Category = "Combat")
-	double WarpTargetDistance = 75.f;
+	double WarpTargetDistance = 90.f;
+
+	UPROPERTY(BlueprintReadOnly)
+	TEnumAsByte<EDeathPose> DeathPose;
 
 private:
 	void PlayMontageSection(UAnimMontage* AnimMontage, const FName& SectionName);
@@ -83,4 +87,7 @@ private:
 
 	UPROPERTY(EditAnywhere, Category = "Montages")
 	TArray<FName> DeathMontageSections;
+
+public:
+	FORCEINLINE TEnumAsByte<EDeathPose> GetDeathPose() const { return DeathPose; }
 };
