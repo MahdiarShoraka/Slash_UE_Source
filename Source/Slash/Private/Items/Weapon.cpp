@@ -39,9 +39,9 @@ void AWeapon::Equip(USceneComponent* InParent, FName InSocketName, AActor* NewOw
 
 void AWeapon::DeactivateEmbers()
 {
-	if (EmberEffects)
+	if (ItemEffect)
 	{
-		EmberEffects->Deactivate();
+		ItemEffect->Deactivate();
 	}
 }
 

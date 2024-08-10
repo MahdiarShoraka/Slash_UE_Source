@@ -1,4 +1,5 @@
 // Fill out your copyright notice in the Description page of Project Settings.
+// Fill out your copyright notice in the Description page of Project Settings.
 
 
 #include "Characters/SlashCharacter.h"
@@ -16,6 +17,8 @@
 #include "HUD/SlashHUD.h"
 #include "HUD/SlashOverlay.h"
 #include "Components/AttributeComponent.h"
+#include "Items/Soul.h"
+#include "Items/Treasure.h"
 
 ASlashCharacter::ASlashCharacter()
 {
@@ -50,6 +53,16 @@ ASlashCharacter::ASlashCharacter()
 	Eyebrows->AttachmentName = FString("head");
 }
 
+void ASlashCharacter::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
+	if (Attributes && SlashOverlay)
+	{
+		Attributes->RegenStamina(DeltaTime);
+		SlashOverlay->SetStaminaBarPercent(Attributes->GetStaminaPercent());
+	}
+}
+
 void ASlashCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
@@ -58,9 +71,10 @@ void ASlashCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComp
 	{
 		EnhancedInputComponent->BindAction(MovementAction, ETriggerEvent::Triggered, this, &ASlashCharacter::Move);
 		EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &ASlashCharacter::Look);
+		EnhancedInputComponent->BindAction(AttackAction, ETriggerEvent::Triggered, this, &ASlashCharacter::Attack);
 		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Triggered, this, &ASlashCharacter::Jump);
 		EnhancedInputComponent->BindAction(EKeyAction, ETriggerEvent::Triggered, this, &ASlashCharacter::EKeyPressed);
-		EnhancedInputComponent->BindAction(AttackAction, ETriggerEvent::Triggered, this, &ASlashCharacter::Attack);
+		EnhancedInputComponent->BindAction(DodgeAction, ETriggerEvent::Triggered, this, &ASlashCharacter::Dodge);
 	}
 }
 
@@ -86,6 +100,29 @@ void ASlashCharacter::GetHit_Implementation(const FVector& ImpactPoint, AActor* 
 	if (Attributes && Attributes->GetHealthPercent() > 0)
 	{
 		ActionState = EActionState::EAS_HitReaction;
+	}
+}
+
+void ASlashCharacter::SetOverlappingItem(AItem* Item)
+{
+	OverlappingItem = Item;
+}
+
+void ASlashCharacter::AddSouls(ASoul* Soul)
+{
+	if (Attributes && SlashOverlay)
+	{
+		Attributes->AddSouls(Soul->GetSouls());
+		SlashOverlay->SetSouls(Attributes->GetSouls());
+	}
+}
+
+void ASlashCharacter::AddGold(ATreasure* Treasure)
+{
+	if (Attributes && SlashOverlay)
+	{
+		Attributes->AddGold(Treasure->GetGold());
+		SlashOverlay->SetGold(Attributes->GetGold());
 	}
 }
 
@@ -144,6 +181,20 @@ void ASlashCharacter::EKeyPressed()
 	}
 }
 
+void ASlashCharacter::Dodge()
+{
+	if (ActionState != EActionState::EAS_Unoccupied || !HasStaminaForDodge()) return;
+	if (ActionState != EActionState::EAS_Unoccupied || !HasStaminaForDodge()) return;
+
+	ActionState = EActionState::EAS_Dodge;
+	PlayDodgeMontage();
+	if (Attributes && SlashOverlay)
+	{
+		Attributes->UseStamina(Attributes->GetDodgeCost());
+		SlashOverlay->SetStaminaBarPercent(Attributes->GetStaminaPercent());
+	}
+}
+
 void ASlashCharacter::EquipWeapon(AWeapon* Weapon)
 {
 	Weapon->Equip(GetMesh(), FName("RightHandSocket"), this, this);
@@ -165,12 +216,24 @@ void ASlashCharacter::Attack()
 
 void ASlashCharacter::AttackEnd()
 {
+	Super::AttackEnd();
+	ActionState = EActionState::EAS_Unoccupied;
+}
+
+void ASlashCharacter::DodgeEnd()
+{
+	Super::DodgeEnd();
 	ActionState = EActionState::EAS_Unoccupied;
 }
 
 bool ASlashCharacter::CanAttack()
 {
 	return ActionState == EActionState::EAS_Unoccupied && CharacterState != ECharacterState::ECS_Unequipped;
+}
+
+bool ASlashCharacter::HasStaminaForDodge()
+{
+	return Attributes && Attributes->GetCurrentStamina() >= Attributes->GetDodgeCost();
 }
 
 void ASlashCharacter::Die()

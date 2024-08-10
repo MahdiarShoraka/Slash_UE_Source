@@ -28,6 +28,7 @@ protected:
 	virtual void HandleDamage(float DamageAmount);
 	virtual int32 PlayAttackMontage();
 	virtual int32 PlayDeathMontage();
+	virtual void PlayDodgeMontage();
 	void StopAttackMontage();
 	void DisableCapsule();
 	bool IsAlive();
@@ -47,6 +48,9 @@ protected:
 
 	UFUNCTION(BlueprintCallable)
 	virtual void AttackEnd();
+
+	UFUNCTION(BlueprintCallable)
+	virtual void DodgeEnd();
 
 	UPROPERTY(VisibleAnywhere, Category = "Weapon")
 	AWeapon* EquippedWeapon;
@@ -81,6 +85,9 @@ private:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Montages")
 	UAnimMontage* DeathMontage;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Montages")
+	UAnimMontage* DodgeMontage;
 
 	UPROPERTY(EditAnywhere, Category = "Montages")
 	TArray<FName> AttackMontageSections;
