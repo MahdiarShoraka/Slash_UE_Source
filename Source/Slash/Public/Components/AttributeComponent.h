@@ -25,6 +25,7 @@ public:
 	void AddSouls(int32 SoulsAmount);
 	void AddGold(int32 GoldAmount);
 	void RegenStamina(float DeltaTime);
+	void AddHealth(float HealthAmount);
 
 protected:
 	virtual void BeginPlay() override;

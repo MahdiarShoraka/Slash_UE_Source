@@ -30,7 +30,7 @@ protected:
 	virtual void BeginPlay() override;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Sine Parameters")
-	float Amplitude = 0.25f;
+	float Amplitude = 0.4f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Sine Parameters")
 	float TimeConstant = 5.f;
@@ -56,6 +56,9 @@ protected:
 	virtual void SpawnPickupSystem();
 	virtual void SpawnPickupSound();
 
+	virtual void DetermineSpawnLocation(const FVector& Start, const FVector& End);
+	virtual void DriftDown(float DeltaTime);
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	UStaticMeshComponent* ItemMesh;
 
@@ -76,6 +79,11 @@ protected:
 private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	float RunningTime;
+
+	double DesiredZ;
+
+	UPROPERTY(EditAnywhere)
+	float DriftRate = -15.f;
 };
 
 template <typename T>

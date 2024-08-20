@@ -52,16 +52,16 @@ protected:
 	UFUNCTION(BlueprintCallable)
 	virtual void DodgeEnd();
 
-	UPROPERTY(VisibleAnywhere, Category = "Weapon")
+	UPROPERTY(VisibleAnywhere, Category = "Combat Properties")
 	AWeapon* EquippedWeapon;
 
 	UPROPERTY(VisibleAnywhere)
 	UAttributeComponent* Attributes;
 
-	UPROPERTY(BlueprintReadOnly, Category = "Combat")
+	UPROPERTY(BlueprintReadOnly, Category = "Combat Properties")
 	AActor* CombatTarget;
 
-	UPROPERTY(EditAnywhere, Category = "Combat")
+	UPROPERTY(EditAnywhere, Category = "Combat Properties")
 	double WarpTargetDistance = 90.f;
 
 	UPROPERTY(BlueprintReadOnly)
@@ -71,10 +71,10 @@ private:
 	void PlayMontageSection(UAnimMontage* AnimMontage, const FName& SectionName);
 	int32 PlayRandomMontageSection(UAnimMontage* AnimMontage, const TArray<FName>& SectionNames);
 
-	UPROPERTY(EditAnywhere, Category = "Sounds")
+	UPROPERTY(EditAnywhere, Category = "Sounds and Visual Effects")
 	USoundBase* HitSound;
 
-	UPROPERTY(EditAnywhere, Category = "Visual Effects")
+	UPROPERTY(EditAnywhere, Category = "Sounds and Visual Effects")
 	UParticleSystem* HitParticles;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Montages")

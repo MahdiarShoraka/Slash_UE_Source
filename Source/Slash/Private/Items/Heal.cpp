@@ -1,17 +1,17 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "Items/Soul.h"
+#include "Items/Heal.h"
 #include "Interfaces/PickupInterface.h"
 
-void ASoul::Tick(float DeltaTime)
+void AHeal::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
 	DriftDown(DeltaTime);
 }
 
-void ASoul::BeginPlay()
+void AHeal::BeginPlay()
 {
 	Super::BeginPlay();
 
@@ -21,7 +21,7 @@ void ASoul::BeginPlay()
 	DetermineSpawnLocation(Start, End);
 }
 
-void ASoul::OnSphereOverlap(UPrimitiveComponent* OverlappedComponent,
+void AHeal::OnSphereOverlap(UPrimitiveComponent* OverlappedComponent,
 	AActor* OtherActor,
 	UPrimitiveComponent* OtherComp,
 	int32 OtherBodyIndex,
@@ -31,7 +31,7 @@ void ASoul::OnSphereOverlap(UPrimitiveComponent* OverlappedComponent,
 	IPickupInterface* PickupInterface = Cast<IPickupInterface>(OtherActor);
 	if (PickupInterface)
 	{
-		PickupInterface->AddSouls(this);
+		PickupInterface->Heal(this);
 		SpawnPickupSystem();
 		SpawnPickupSound();
 		Destroy();

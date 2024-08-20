@@ -56,23 +56,10 @@ private:
 	UFUNCTION()
 	void PawnSeen(APawn* SeenPawn);	//Callback for OnPawnSeen in UPawnSensingComponent
 
-	UPROPERTY(VisibleAnywhere)
-	UHealthBarComponent* HealthBarWidget;
-
-	UPROPERTY(VisibleAnywhere)
-	UPawnSensingComponent* PawnSensing;
-
-	UPROPERTY(EditAnywhere)
-	TSubclassOf<class AWeapon> WeaponClass;
-
-	UPROPERTY(EditAnywhere)
-	double CombatRadius = 1000.f;
-
-	UPROPERTY(EditAnywhere)
-	double AttackRadius = 175.f;
-
 	UPROPERTY()
 	AAIController* EnemyController;
+
+	FTimerHandle PatrolTimer;
 
 	UPROPERTY(EditInstanceOnly, Category = "AI Navigation")
 	AActor* PatrolTarget;
@@ -80,10 +67,14 @@ private:
 	UPROPERTY(EditInstanceOnly, Category = "AI Navigation")
 	TArray<AActor*> PatrolTargets;
 
-	UPROPERTY(EditAnywhere)
-	double PatrolRadius = 300.f;
+	UPROPERTY(VisibleAnywhere, Category = "AI Navigation")
+	UPawnSensingComponent* PawnSensing;
 
-	FTimerHandle PatrolTimer;
+	UPROPERTY(EditAnywhere, Category = "AI Navigation")
+	double AcceptanceRadius = 60.f;
+
+	UPROPERTY(EditAnywhere, Category = "AI Navigation")
+	double PatrolRadius = 300.f;
 
 	UPROPERTY(EditAnywhere, Category = "AI Navigation")
 	double PatrolMinWaitTime = 5.f;
@@ -91,10 +82,22 @@ private:
 	UPROPERTY(EditAnywhere, Category = "AI Navigation")
 	double PatrolMaxWaitTime = 30.f;
 
-	UPROPERTY(EditAnywhere, Category = "Combat Properties")
+	UPROPERTY(EditAnywhere, Category = "AI Navigation")
 	float PatrollingSpeed = 125.f;
 
 	FTimerHandle AttackTimer;
+
+	UPROPERTY(VisibleAnywhere, Category = "Combat Properties")
+	UHealthBarComponent* HealthBarWidget;
+
+	UPROPERTY(EditAnywhere, Category = "Combat Properties")
+	TSubclassOf<class AWeapon> WeaponClass;
+
+	UPROPERTY(EditAnywhere, Category = "Combat Properties")
+	double CombatRadius = 1000.f;
+
+	UPROPERTY(EditAnywhere, Category = "Combat Properties")
+	double AttackRadius = 170.f;
 
 	UPROPERTY(EditAnywhere, Category = "Combat Properties")
 	float AttackMin = 0.5f;

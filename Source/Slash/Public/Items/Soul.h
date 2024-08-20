@@ -15,8 +15,9 @@ class SLASH_API ASoul : public AItem
 	GENERATED_BODY()
 
 public:
-
+	virtual void Tick(float DeltaTime) override;
 protected:
+	virtual void BeginPlay() override;
 	virtual void OnSphereOverlap(UPrimitiveComponent* OverlappedComponent,
 		AActor* OtherActor,
 		UPrimitiveComponent* OtherComp,

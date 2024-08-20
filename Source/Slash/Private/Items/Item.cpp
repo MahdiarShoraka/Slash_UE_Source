@@ -7,6 +7,7 @@
 #include "NiagaraComponent.h"
 #include "NiagaraFunctionLibrary.h"
 #include "Kismet/GameplayStatics.h"
+#include "Kismet/KismetSystemLibrary.h"
 
 AItem::AItem()
 {
@@ -89,5 +90,35 @@ void AItem::SpawnPickupSound()
 	if (PickupSound)
 	{
 		UGameplayStatics::SpawnSoundAtLocation(this, PickupSound, GetActorLocation());
+	}
+}
+
+void AItem::DetermineSpawnLocation(const FVector& Start, const FVector& End)
+{
+	TArray<TEnumAsByte<EObjectTypeQuery>> ObjectTypes;
+	ObjectTypes.Add(EObjectTypeQuery::ObjectTypeQuery1);
+
+	TArray<AActor*> ActorsToIgnore;
+	ActorsToIgnore.Add(GetOwner());
+
+	FHitResult HitResult;
+	UKismetSystemLibrary::LineTraceSingleForObjects(this,
+		Start, End,
+		ObjectTypes,
+		false,
+		ActorsToIgnore,
+		EDrawDebugTrace::None,
+		HitResult,
+		true);
+
+	DesiredZ = HitResult.ImpactPoint.Z + 75;
+}
+
+void AItem::DriftDown(float DeltaTime)
+{
+	const double LocationZ = GetActorLocation().Z;
+	if (DesiredZ < LocationZ)
+	{
+		AddActorWorldOffset(FVector(0.f, 0.f, DeltaTime * DriftRate));
 	}
 }

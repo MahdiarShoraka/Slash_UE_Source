@@ -19,6 +19,7 @@
 #include "Components/AttributeComponent.h"
 #include "Items/Soul.h"
 #include "Items/Treasure.h"
+#include "Items/Heal.h"
 
 ASlashCharacter::ASlashCharacter()
 {
@@ -126,6 +127,15 @@ void ASlashCharacter::AddGold(ATreasure* Treasure)
 	}
 }
 
+void ASlashCharacter::Heal(AHeal* Heal)
+{
+	if (Attributes && SlashOverlay)
+	{
+		Attributes->AddHealth(Heal->GetHealAmount());
+		SlashOverlay->SetHealthBarPercent(Attributes->GetHealthPercent());
+	}
+}
+
 void ASlashCharacter::BeginPlay()
 {
 	Super::BeginPlay();
@@ -169,6 +179,10 @@ void ASlashCharacter::EKeyPressed()
 	AWeapon* OverlappingWeapon = Cast<AWeapon>(OverlappingItem);
 	if (OverlappingWeapon)
 	{
+		if (EquippedWeapon)
+		{
+			EquippedWeapon->Destroy();
+		}
 		EquipWeapon(OverlappingWeapon);
 	}
 	else if (CanDisarm())

@@ -81,6 +81,10 @@ void AEnemy::GetHit_Implementation(const FVector& ImpactPoint, AActor* Hitter)
 	ClearPatrolTimer();
 	ClearAttackTimer();
 	StopAttackMontage();
+	if (IsInsideAttackRadius())
+	{
+		if (EnemyState != EEnemyState::EES_Dead) StartAttackTimer();
+	}
 }
 
 void AEnemy::BeginPlay()
@@ -114,11 +118,12 @@ void AEnemy::SpawnSouls()
 	UWorld* World = GetWorld();
 	if (World && SoulClass && Attributes)
 	{
-		const FVector SpawnLocation = GetActorLocation() + FVector(0.f, 0.f, 40.f);
+		const FVector SpawnLocation = GetActorLocation() + FVector(0.f, 0.f, 125.f);
 		ASoul* SpawnedSoul = World->SpawnActor<ASoul>(SoulClass, SpawnLocation, GetActorRotation());
 		if (SpawnedSoul)
 		{
 			SpawnedSoul->SetSouls(Attributes->GetSouls());
+			SpawnedSoul->SetOwner(this);
 		}
 	}
 }
@@ -274,7 +279,7 @@ void AEnemy::MoveToTarget(AActor* Target)
 	if (EnemyController == nullptr || Target == nullptr) return;
 	FAIMoveRequest MoveRequest;
 	MoveRequest.SetGoalActor(Target);
-	MoveRequest.SetAcceptanceRadius(50.f);
+	MoveRequest.SetAcceptanceRadius(AcceptanceRadius);
 	EnemyController->MoveTo(MoveRequest);
 }
 
@@ -303,7 +308,7 @@ void AEnemy::SpawnDefaultWeapon()
 	if (World && WeaponClass)
 	{
 		AWeapon* Weapon = World->SpawnActor<AWeapon>(WeaponClass);
-		Weapon->Equip(GetMesh(), FName("RightHandSocket"), this, this);
+		Weapon->Equip(GetMesh(), FName("WeaponSocket"), this, this);
 		EquippedWeapon = Weapon;
 	}
 }
