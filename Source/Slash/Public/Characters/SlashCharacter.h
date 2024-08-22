@@ -44,6 +44,8 @@ protected:
 	void Look(const FInputActionValue& Value);
 	void EKeyPressed();
 	void Dodge();
+	void LockOn();
+	void UnlockFromTarget();
 
 	void EquipWeapon(AWeapon* Weapon);
 	virtual void Attack() override;
@@ -70,6 +72,12 @@ protected:
 	UFUNCTION(BlueprintCallable)
 	void HitReactEnd();
 
+	UFUNCTION()
+	ABaseCharacter* FindLockOnTarget();
+
+	UFUNCTION()
+	void RotateToLockedTarget(float DeltaTime);
+
 	UPROPERTY(EditAnywhere, Category = Input)
 	UInputMappingContext* SlashContext;
 
@@ -90,6 +98,29 @@ protected:
 
 	UPROPERTY(EditAnywhere, Category = Input)
 	UInputAction* DodgeAction;
+
+	UPROPERTY(EditAnywhere, Category = Input)
+	UInputAction* LockOnAction;
+
+	UPROPERTY(EditAnywhere, Category = Input)
+	UInputAction* UnlockAction;
+
+	// Lock-On variables
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Lock-On System")
+	ABaseCharacter* LockedOnTarget;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Lock-On System")
+	bool bIsLockedOn;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Lock-On System")
+	float LockOnRadius = 500.f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Lock-On System")
+	float InterpSpeed = 50.f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Lock-On System")
+	float CameraInterpSpeed = 50.f;
 
 private:
 	void InitializeSlashOverlay(APlayerController* PlayerController);

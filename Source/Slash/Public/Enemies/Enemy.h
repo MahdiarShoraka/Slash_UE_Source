@@ -5,6 +5,7 @@
 #include "Enemy.generated.h"
 
 class UHealthBarComponent;
+class UWidgetComponent;
 class AAIController;
 class UPawnSensingComponent;
 
@@ -90,6 +91,9 @@ private:
 	UPROPERTY(VisibleAnywhere, Category = "Combat Properties")
 	UHealthBarComponent* HealthBarWidget;
 
+	//UPROPERTY(VisibleAnywhere, Category = "Combat Properties")
+	//UWidgetComponent* LockedOnWidget;
+
 	UPROPERTY(EditAnywhere, Category = "Combat Properties")
 	TSubclassOf<class AWeapon> WeaponClass;
 
@@ -113,5 +117,8 @@ private:
 
 	UPROPERTY(EditAnywhere, Category = "Combat Properties")
 	TSubclassOf<class ASoul> SoulClass;
+
+public:
+	FORCEINLINE UHealthBarComponent* GetHealthBarWidget() { return HealthBarWidget; }
 
 };

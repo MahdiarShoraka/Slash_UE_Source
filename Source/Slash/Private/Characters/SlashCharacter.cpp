@@ -10,16 +10,19 @@
 #include "GroomComponent.h"
 #include "Items/Item.h"
 #include "Items/Weapon.h"
+#include "Enemies/Enemy.h"
 #include "Animation/AnimMontage.h"
 #include "Components/InputComponent.h"
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "HUD/SlashHUD.h"
 #include "HUD/SlashOverlay.h"
+#include "HUD/HealthBarComponent.h"
 #include "Components/AttributeComponent.h"
 #include "Items/Soul.h"
 #include "Items/Treasure.h"
 #include "Items/Heal.h"
+#include "Kismet/KismetMathLibrary.h"
 
 ASlashCharacter::ASlashCharacter()
 {
@@ -57,11 +60,24 @@ ASlashCharacter::ASlashCharacter()
 void ASlashCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+
+	// stamina system
 	if (Attributes && SlashOverlay)
 	{
 		Attributes->RegenStamina(DeltaTime);
 		SlashOverlay->SetStaminaBarPercent(Attributes->GetStaminaPercent());
 	}
+
+	// Lock On system
+	if (bIsLockedOn)
+	{
+		if (FindLockOnTarget() != LockedOnTarget)
+		{
+			UnlockFromTarget(); // Unlock from the old target
+			LockOn(); // Lock on the new target
+		}
+	}
+	RotateToLockedTarget(DeltaTime);
 }
 
 void ASlashCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -76,6 +92,8 @@ void ASlashCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComp
 		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Triggered, this, &ASlashCharacter::Jump);
 		EnhancedInputComponent->BindAction(EKeyAction, ETriggerEvent::Triggered, this, &ASlashCharacter::EKeyPressed);
 		EnhancedInputComponent->BindAction(DodgeAction, ETriggerEvent::Triggered, this, &ASlashCharacter::Dodge);
+		EnhancedInputComponent->BindAction(LockOnAction, ETriggerEvent::Triggered, this, &ASlashCharacter::LockOn);
+		EnhancedInputComponent->BindAction(UnlockAction, ETriggerEvent::Triggered, this, &ASlashCharacter::UnlockFromTarget);
 	}
 }
 
@@ -209,6 +227,37 @@ void ASlashCharacter::Dodge()
 	}
 }
 
+void ASlashCharacter::LockOn()
+{
+	AEnemy* Target = Cast<AEnemy>(FindLockOnTarget());
+	if (Target)
+	{
+		//UE_LOG(LogTemp, Warning, TEXT("The lockedOn target is: %s"), *(Target->GetActorNameOrLabel()));
+		UHealthBarComponent* EnemyHealthBar = Target->GetHealthBarWidget();
+		EnemyHealthBar->SetVisibility(true);
+		LockedOnTarget = Target;
+		bIsLockedOn = true;
+		GetCharacterMovement()->MaxWalkSpeed = 300.f;
+	}
+	else
+	{
+		UnlockFromTarget();
+	}
+}
+
+void ASlashCharacter::UnlockFromTarget()
+{
+	AEnemy* Target = Cast<AEnemy>(LockedOnTarget);
+	if (Target)
+	{
+		UHealthBarComponent* EnemyHealthBar = Target->GetHealthBarWidget();
+		EnemyHealthBar->SetVisibility(false);
+	}
+	GetCharacterMovement()->MaxWalkSpeed = 500.f;
+	LockedOnTarget = nullptr;
+	bIsLockedOn = false;
+}
+
 void ASlashCharacter::EquipWeapon(AWeapon* Weapon)
 {
 	Weapon->Equip(GetMesh(), FName("RightHandSocket"), this, this);
@@ -319,6 +368,80 @@ void ASlashCharacter::AttachWeaponToBack()
 void ASlashCharacter::HitReactEnd()
 {
 	ActionState = EActionState::EAS_Unoccupied;
+}
+
+ABaseCharacter* ASlashCharacter::FindLockOnTarget()
+{
+	FVector PlayerLocation = GetActorLocation();
+
+	TArray<FOverlapResult> OverlapResults;
+	FCollisionQueryParams QueryParams;
+	QueryParams.AddIgnoredActor(this);
+
+	bool bHasHit = GetWorld()->OverlapMultiByObjectType(
+		OverlapResults,
+		PlayerLocation,
+		FQuat::Identity,
+		FCollisionObjectQueryParams(ECollisionChannel::ECC_WorldDynamic),
+		FCollisionShape::MakeSphere(LockOnRadius),
+		QueryParams
+	);
+
+	ABaseCharacter* NearestTarget = nullptr;
+	float NearestDistance = FLT_MAX;
+
+	if (bHasHit)
+	{
+		for (const FOverlapResult& Result : OverlapResults)
+		{
+			AActor* OverlappedActor = Result.GetActor();
+
+			if (OverlappedActor && OverlappedActor != this && !OverlappedActor->ActorHasTag(FName("Dead")))
+			{
+				float DistanceToTarget = FVector::Dist(PlayerLocation, OverlappedActor->GetActorLocation());
+
+				// Check if this actor is the closest one so far
+				if (DistanceToTarget < NearestDistance)
+				{
+					NearestTarget = Cast<ABaseCharacter>(OverlappedActor);
+					if (NearestTarget)
+					{
+						NearestDistance = DistanceToTarget;
+					}
+				}
+			}
+		}
+	}
+
+	return NearestTarget;
+}
+
+void ASlashCharacter::RotateToLockedTarget(float DeltaTime)
+{
+	if (LockedOnTarget == nullptr || !bIsLockedOn)
+	{
+		UnlockFromTarget();
+		return;
+	}
+	FVector PlayerLocation = GetActorLocation();
+	FVector LockedTargetLocation = LockedOnTarget->GetActorLocation();
+
+	if (ActionState != EActionState::EAS_Dodge && !LockedOnTarget->ActorHasTag("Dead"))
+	{
+		// character's rotation
+		FRotator LookAtRotation = UKismetMathLibrary::FindLookAtRotation(PlayerLocation, LockedTargetLocation);
+		FRotator NewRotation = FMath::RInterpTo(GetActorRotation(), LookAtRotation, DeltaTime, InterpSpeed);
+		SetActorRotation(NewRotation);
+
+		// camera's rotation
+		FRotator NewControlRotation = GetControlRotation();
+		NewControlRotation.Yaw = FMath::RInterpTo(GetControlRotation(), LookAtRotation, DeltaTime, CameraInterpSpeed).Yaw;
+		GetController()->SetControlRotation(NewControlRotation);
+	}
+	else if (LockedOnTarget->ActorHasTag("Dead"))
+	{
+		UnlockFromTarget();
+	}
 }
 
 void ASlashCharacter::InitializeSlashOverlay(APlayerController* PlayerController)

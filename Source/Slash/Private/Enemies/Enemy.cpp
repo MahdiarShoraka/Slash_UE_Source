@@ -24,6 +24,9 @@ AEnemy::AEnemy()
 	HealthBarWidget = CreateDefaultSubobject<UHealthBarComponent>(TEXT("HealthBar"));
 	HealthBarWidget->SetupAttachment(GetRootComponent());
 
+	//LockedOnWidget = CreateDefaultSubobject<UWidgetComponent>(TEXT("Locked-On"));
+	//LockedOnWidget->SetupAttachment(GetRootComponent());
+
 	GetCharacterMovement()->bOrientRotationToMovement = true;
 	bUseControllerRotationPitch = false;
 	bUseControllerRotationYaw = false;
