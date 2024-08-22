@@ -5,3 +5,5 @@ Welcome to the source code repository for Project Alpha (Slash), a 3D Action RPG
 Throughout the development process, I focused on utilizing Unreal Engine 5's powerful frameworks and systems to create a professional and polished gameplay experience.
 
 This project was part of my coursework from the Unreal Engine 5: The Ultimate Game Developer Course on Udemy.
+
+Do not use the code without permission.
