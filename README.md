@@ -1,4 +1,4 @@
-The Source Code Repository for **Project Alpha**, an Unreal Engine 5 Action Adventure Game MVP.
+The Source Code Repository for **Slash**, an Unreal Engine 5 Action Adventure Game MVP.
 
 This project serves as a demonstration of my skills in crafting clean, scalable C++ code and implementing complex game logic and mechanics.
 
